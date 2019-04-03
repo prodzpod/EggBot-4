@@ -1,0 +1,30 @@
+{
+  "name": "eggbot-4",
+  "version": "1.0.0",
+  "description": "4th iteration of the \"Does-all\" bot thing",
+  "main": "index.js",
+  "dependencies": {
+    "discord.js": "^11.4.2",
+    "graceful-fs": "^4.1.15",
+    "node-opus": "^0.3.1",
+    "uWebSockets.js": "^15.8.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ProDuct0339/EggBot-4.git"
+  },
+  "keywords": [
+    "egg",
+    "bot"
+  ],
+  "author": "prod",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ProDuct0339/EggBot-4/issues"
+  },
+  "homepage": "https://github.com/ProDuct0339/EggBot-4#readme"
+}
