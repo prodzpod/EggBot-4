@@ -1,30 +1,24 @@
 {
-  "name": "eggbot-4",
+  "name": "eggbot4",
   "version": "1.0.0",
-  "description": "4th iteration of the \"Does-all\" bot thing",
+  "description": "all-in-one bot in development!",
   "main": "index.js",
-  "dependencies": {
-    "discord.js": "^11.4.2",
-    "graceful-fs": "^4.1.15",
-    "node-opus": "^0.3.1",
-    "uWebSockets.js": "^15.8.0"
-  },
-  "devDependencies": {},
   "scripts": {
     "test": "node index.js"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/ProDuct0339/EggBot-4.git"
-  },
   "keywords": [
-    "egg",
+    "discord",
+    "javascript",
     "bot"
   ],
   "author": "prod",
   "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/ProDuct0339/EggBot-4/issues"
-  },
-  "homepage": "https://github.com/ProDuct0339/EggBot-4#readme"
+  "dependencies": {
+    "discord.js": "^11.5.0",
+    "fast-json-stringify": "^1.15.2",
+    "flatstr": "^1.0.11",
+    "is-image-url": "^1.1.8",
+    "path": "^0.12.7",
+    "turbo-json-parse": "^2.3.0"
+  }
 }
