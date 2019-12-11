@@ -19,6 +19,7 @@
     "flatstr": "^1.0.11",
     "is-image-url": "^1.1.8",
     "path": "^0.12.7",
+    "sprintf-js": "^1.1.2",
     "turbo-json-parse": "^2.3.0"
   }
 }

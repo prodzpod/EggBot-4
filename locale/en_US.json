@@ -1,0 +1,40 @@
+{
+    "_comment": ["EGGBOT 4 LOCALE FILE",
+                 "command:",
+                 "title: Title of the command, shown in !help and !help <category>",
+                 "usage: Usage of the command, %1$s is prefix, %2$s is command name, shown in !help",
+                 "alias: array of aliases, first alias will be represented in !help",
+                 "description: description of the command, shown in !help"
+    ],
+    "locale": "English (United States)",
+    "bot": {
+        "usage": "Usage",
+        "perms": "Required Permissions",
+        "embedFooter": "Eggbot %1$s >> By @prod#0339",
+        "invalidPermTitle": "Invalid Permission",
+        "invalidPermDesc": "You need to have `%1$s` Permission!"
+    },
+    "command": {
+        "ping": {
+            "title": "Ping Command",
+            "usage": "`%1$s%2$s`",
+            "alias": ["ping", "tick", "pong", "latency"],
+            "description": "Checks how much lag the bot currently has.",
+            "embedTitle": "Ping!",
+            "embedDescription": "Elapsed Time: %1$s\n Average Time: %2$s"
+        },
+        "test": {
+            "title": "Test Command",
+            "usage": "`%1$s%2$s`: Test something prod made",
+            "alias": ["test"],
+            "description": "You're not supposed to access this"
+        },
+        "template": {
+            "title": "Example Command",
+            "usage": "`%1$s%2$s`: Example usage",
+            "alias": ["template", "example"],
+            "description": "Example Description",
+            "output": "Example Output"
+        }
+    }
+}

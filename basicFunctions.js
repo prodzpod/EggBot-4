@@ -3,33 +3,33 @@ const fs = require('fs');
 // other requires
 const fastJson = require('fast-json-stringify');
 const flatstr = require('flatstr');
-const compile = require('turbo-json-parse');
 const isImageUrl = require('is-image-url');
-const prefix = require(directoryData + 'prefix.json');
+const sprintf = require('sprintf-js').sprintf;
+// const config = require('./config.json')
+const directory = 'F:\\339\\Projects\\Developments\\EggBot4\\EggBot-4\\';
 
 module.exports = {
     /*****************************     BETTER FILE SYSTEM     *************************************/
-    read: (async function (fname, schema) { // [ASYNC] input: file directory and schema, output: object of JSON
-        (async function (fname) {
+    read: (async function (fname) { // [ASYNC] input: file directory and schema, output: object of JSON
+        let promise = new Promise((res, rej) => {
             let readStream = fs.createReadStream(fname);
             let data = "";
-            readerStream.setEncoding('UTF8');
-            readerStream.on('data', function(chunk) {
-               data += chunk;
+            readStream.setEncoding('UTF8');
+            readStream.on('data', function(chunk) {
+                data += chunk;
             });
-            readerStream.on('end',function() {
-               return data;
+            readStream.on('end',function() {
+                res(data);
             });
-            readerStream.on('error', function(err) {
-               console.error(err.stack);
-               return null;
+            readStream.on('error', function(err) {
+                console.error(err.stack);
+                res(null);
             });
-        }).then((data) => {
-            try {
-                let parse = compile(schema);
-                return parse(data);
-            } catch (err) { console.error(err) };
-        }).catch((err) => console.error);
+        })
+        let data = await promise;
+        try {
+            return JSON.parse(data);
+        } catch (err) { console.error(err) };
     }),
     write: (function (object, schema) { // input: object and schema, writes into file 
         try {
@@ -37,19 +37,15 @@ module.exports = {
             return stringify(flatstr(object));
         } catch (err) { console.error(err) };
     }),
+    config: require('./config.json'),
+    printf: sprintf,
     /******************************     BASIC CONSTANTS     ***************************************/
-    token: '',
-    build: [1, 0, 0],
-    defaultPrefix: '!',
-    directory: 'F:\\339\\Projects\\Developments\\EggBot4\\',
-    directoryData: this.directory + 'data\\',
-    directoryResource: this.directory + 'resource\\',
-    directoryQuote: this.directory + 'quote\\',
-    directoryList: this.directory + 'list\\',
-    ownerID: [],
-    trustedID: {
-
-    },
+    directory: directory,
+    directoryData: directory + 'data\\',
+    directoryResource: directory + 'resource\\',
+    directoryQuote: directory + 'quote\\',
+    directoryCommand: directory + 'command\\',
+    directoryLocale: directory + 'locale\\',
     toProperCase: function (text) {
         return text.replace(/\w\S*/g, function (txt) { return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase(); });
     },
@@ -75,47 +71,65 @@ module.exports = {
     isDM: function (message) { return (message.guild === null); },
 
     getPrefix: function (message) {
-        if (this.isDM(message)) return this.defaultPrefix;
-        return this.returnDef(prefix[message.guild.id], this.defaultPrefix);
+        if (this.isDM(message)) return this.config.defaultPrefix;
+        return this.returnDef(this.config.prefix[message.guild.id], this.config.defaultPrefix);
     },
 
-    sendInfo: function (channel, name, desc) {
+    getLocale: function (message) {
+        if (this.isDM(message)) return this.returnDef(this.config.locale[message.channel.id], this.config.defaultLocale);
+        return this.returnDef(this.config.locale[message.guild.id], this.config.defaultLocale);
+    },
+
+    getFooter: function (locale) {
+        return this.printf(locale.bot.embedFooter, this.config.build.join('.'))
+    },
+
+    sendInfo: function (channel, name, desc, locale) {
         channel.send({
             embed: {
                 color: 0x9999FF,
-                title: 'ℹ' + name,
+                title: 'ℹ ' + name,
                 description: desc,
                 footer: {
-                    text: 'EggBot ' + this.build.join('.') + ' >> By @prod#0339'
+                    text: this.getFooter(locale)
                 }
             }
         });
     },
 
-    sendWarning: function (channel, name, desc) {
+    sendWarning: function (channel, name, desc, locale) {
         channel.send({
             embed: {
                 color: 0xFF9999,
-                title: '❎' + name,
-                description: desc
+                title: '❎ ' + name,
+                description: desc,
+                footer: {
+                    text: this.getFooter(locale)
+                }
             }
         });
     },
 
-    invalidPerms: function (channel, perm) {
-        this.sendWarning(channel, 'Invalid Permission', 'You need to have `' + perm + '` Permission!');
+    invalidPerms: function (channel, perm, locale) {
+        this.sendWarning(channel, locale.bot.invalidPermTitle, this.printf(locale.bot.invalidPermDesc, perm), locale);
     },
 
-    commandHelp: function (message, info, ...field) {
+    commandHelp: function (message, command, perm, locale) {
         message.channel.send({
             embed: {
                 color: 0x9999FF,
-                title: 'ℹ' + info.name,
-                description: info.desc.replace(/&/g, this.getPrefix(message.guild.id)),
+                title: 'ℹ ' + locale.command[command].title,
+                description: locale.command[command].description,
                 footer: {
-                    text: 'Required Permissions : `' + info.perm + '`'
+                    text: this.getFooter(locale)
                 },
-                fields: field
+                fields: [{
+                    "name": locale.bot.perms,
+                    "value": perm
+                }, {
+                    "name": locale.bot.usage,
+                    "value": this.printf(locale.command[command].usage, this.getPrefix(message), locale.command[command].alias[0])
+                }]
             }
         });
         return;
@@ -124,14 +138,14 @@ module.exports = {
     checkPerms: function (message, perm) {
         perm = perm.toUpperCase();
         if (perm.startsWith('TRUSTED_')) {
-            if (message.author.id == this.trustedID[perm.slice(8)]) return true;
+            if (message.author.id == this.config.trustedID[perm.slice(8)]) return true;
             return false;
         }
         switch (perm) {
             case 'NONE':
                 return true;
             case 'BOT_OWNER':
-                if (this.ownerID.includes(message.author.id)) return true;
+                if (this.config.ownerID.includes(message.author.id)) return true;
                 return false;
             case 'GUILD_OWNER':
                 if (this.isDM(message)) return true;
