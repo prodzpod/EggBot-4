@@ -1,0 +1,19 @@
+{
+    "_comment": "example config file, real config file with filename 'config.json' is needed",
+    "token": "YOUR_TOKEN_HERE",
+    "build": [4, 0, 0],
+    "defaultPrefix": "!",
+    "prefix": {
+
+    },
+    "defaultLocale": "en_US",
+    "locale": {
+        "123456789": "en_US",
+        "987654321": "ko_KR"
+    },
+    "ownerID": ["360245686186541056"],
+    "trustedID": {
+        "TEAM_A": ["1234567", "2345678", "3456789"],
+        "TEAM_NAME": ["TRUSTED", "GROUP", "USER", "IDS"]
+    }
+}
