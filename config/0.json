@@ -1,0 +1,7 @@
+{
+    "greet_welcome": "Welcome **%member%** to **%server%**!",
+    "greet_goodbye": "**%member%** left **%server%**...",
+    "greet_banned": "**%member%** was **banned** from **%server%**!",
+    "profile_bonus": "Good Boy Points",
+    "profile_warns": "Warns"
+}

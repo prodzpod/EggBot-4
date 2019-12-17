@@ -1,7 +1,6 @@
 const path = require('path');
 const fs = require('fs');
 // other requires
-const fastJson = require('fast-json-stringify');
 const flatstr = require('flatstr');
 const isImageUrl = require('is-image-url');
 const sprintf = require('sprintf-js').sprintf;
@@ -12,30 +11,48 @@ module.exports = {
     /*****************************     BETTER FILE SYSTEM     *************************************/
     read: (async function (fname) { // [ASYNC] input: file directory and schema, output: object of JSON
         let promise = new Promise((res, rej) => {
-            let readStream = fs.createReadStream(fname);
-            let data = "";
-            readStream.setEncoding('UTF8');
-            readStream.on('data', function(chunk) {
-                data += chunk;
-            });
-            readStream.on('end',function() {
-                res(data);
-            });
-            readStream.on('error', function(err) {
-                console.error(err.stack);
-                res(null);
-            });
+            try {
+                let readStream = fs.createReadStream(fname);
+                
+                let data = "";
+                readStream.setEncoding('UTF8');
+                readStream.on('data', function(chunk) {
+                    data += chunk;
+                });
+                readStream.on('end',function() {
+                    res(data);
+                });
+                readStream.on('error', function(err) {
+                    console.error(err.stack);
+                    res(null);
+                });
+            } catch (e) {}
         })
         let data = await promise;
         try {
             return JSON.parse(data);
         } catch (err) { console.error(err) };
     }),
-    write: (function (object, schema) { // input: object and schema, writes into file 
+    write: (async function (fname, object) { // input: object, writes into file 
         try {
-            let stringify = fastJson(schema);
-            return stringify(flatstr(object));
-        } catch (err) { console.error(err) };
+            let str = JSON.stringify(flatstr(object));
+            let promise = new Promise((res, rej) => {
+                try {
+                    let writeStream = fs.createWriteStream(fname).then(() => {
+                        writeStream.write(str);
+                        writeStream.end();
+                    });
+                    writeStream.on('error', function (err) {
+                        res(null)
+                    })
+                    writeStream.on('finish', function (err) {
+                        res(true)
+                    })
+                } catch (e) {}
+            })
+            let data = await promise;
+            return data;
+        } catch (err) { console.error(err); return null; };
     }),
     config: require('./config.json'),
     printf: sprintf,
@@ -43,7 +60,7 @@ module.exports = {
     directory: directory,
     directoryData: directory + 'data\\',
     directoryResource: directory + 'resource\\',
-    directoryQuote: directory + 'quote\\',
+    directoryConfig: directory + 'config\\',
     directoryCommand: directory + 'command\\',
     directoryLocale: directory + 'locale\\',
     toProperCase: function (text) {
@@ -70,9 +87,13 @@ module.exports = {
     /*******************************     BOT FUNCTIONS     ****************************************/
     isDM: function (message) { return (message.guild === null); },
 
+    getGuildID: function (message) {
+        if (this.isDM(message)) return message.channel.id;
+        return message.guild.id;
+    },
+
     getPrefix: function (message) {
-        if (this.isDM(message)) return this.config.defaultPrefix;
-        return this.returnDef(this.config.prefix[message.guild.id], this.config.defaultPrefix);
+        return this.returnDef(this.config.prefix[this.getGuildID(message)], this.config.defaultPrefix);
     },
 
     getLocale: function (message) {
@@ -186,6 +207,31 @@ module.exports = {
         });
     },
     /******************************     MATH FUNCTIONS     ****************************************/
+    getConfig: function (id, ...queries) {
+        res = [];
+        this.read(directoryConfig + id + ".json").then((file) => {
+            this.read(directoryConfig + 0 + ".json").then((def) => {
+                let found = false;
+                if (file == null) { // initialize this server's file
+                    file = def;
+                    found = true;
+                }
+                queries.forEach((index) => {
+                    if (file[index]) res.push(file[index])
+                    else {
+                        file[index] = def[index];
+                        res.push(file[index]);
+                        found = true;
+                    }
+                })
+                if (found) this.write(directoryConfig + id + ".json", file);
+                return res;
+            })
+            return res;
+        })
+        return res;
+    },
+
     random: function (min, max, prec) {
         return (Math.round((Math.random() * (max - min)) * Math.pow(10, prec)) / Math.pow(10, prec)) + min;
     },
